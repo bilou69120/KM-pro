@@ -1,0 +1,691 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="KM Pro">
+<meta name="theme-color" content="#f5f5f7">
+<title>KM Pro V9 — Calcul kilomètres</title>
+<style>
+:root{
+ --bg:#f5f5f7;--card:#fff;--text:#111;--muted:#6b6b70;--line:#e1e1e6;
+ --accent:#111;--soft:#ededf2;--danger:#fff0f0;--dangerText:#b42318;
+ --ok:#087a36;--blue:#1463d8;--blueSoft:#eef4ff
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;margin:0;background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased}
+main{max-width:780px;margin:auto;padding:18px 14px calc(70px + env(safe-area-inset-bottom))}
+header{padding:8px 3px 16px}
+h1{margin:0;font-size:36px;letter-spacing:-1px}
+.sub{color:var(--muted);margin-top:5px;font-size:15px;line-height:1.4}
+.card{background:var(--card);border-radius:21px;padding:16px;margin:12px 0;box-shadow:0 2px 14px rgba(0,0,0,.055)}
+.sectionTitle{font-size:19px;font-weight:850;margin:0 0 6px}
+.hint{font-size:12px;color:var(--muted);line-height:1.45}
+label{display:block;font-size:13px;font-weight:750;margin:12px 0 6px;color:#333}
+input,button,select{font:inherit}
+input,select{width:100%;padding:13px;border:1px solid #cfcfd4;border-radius:13px;background:#fff;color:var(--text);font-size:16px}
+input:focus,select:focus{outline:3px solid rgba(20,99,216,.13);border-color:#7f9fe5}
+button{border:0;border-radius:13px;padding:13px 14px;background:var(--accent);color:#fff;font-weight:750;cursor:pointer;-webkit-tap-highlight-color:transparent}
+button:active{transform:scale(.985)}
+.secondary{background:var(--soft);color:var(--text)}
+.blue{background:var(--blue);color:#fff}
+.danger{background:var(--danger);color:var(--dangerText)}
+.actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:12px}
+.actions button{flex:1;min-width:150px}
+.toolbar{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.toolbar button{flex:1;min-width:120px}
+.step{border:1px solid var(--line);border-radius:17px;padding:13px;margin:10px 0;background:#fff}
+.stephead{display:flex;align-items:center;gap:8px}
+.stepbadge{width:31px;height:31px;border-radius:10px;background:#111;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:850;flex:0 0 31px}
+.stepname{flex:1;min-width:0}
+.stepname input{font-weight:750;padding:10px 11px}
+.deleteBtn{border:0;border-radius:10px;padding:9px 10px;background:var(--danger);color:var(--dangerText);font-weight:750;font-size:13px;flex:0 0 auto}
+.moveBtn{border:0;border-radius:10px;padding:9px 10px;background:var(--soft);color:#333;font-weight:750;font-size:13px;flex:0 0 auto}
+.step .km{font-weight:800;margin-top:10px;font-size:15px}
+.returnStep{border:1px dashed #9da0aa;background:#fafafd}
+.returnBadge{background:var(--blue)}
+.returnTitle{font-weight:850}
+.routeDetail{font-size:12px;color:var(--muted);margin-top:4px}
+.totalRow{display:flex;justify-content:space-between;align-items:flex-end;gap:12px}
+.total{font-size:34px;font-weight:900;letter-spacing:-.6px}
+.unit{font-size:14px;color:var(--muted);font-weight:750}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:13px}
+.stat{background:var(--soft);border-radius:14px;padding:11px}
+.stat b{display:block;font-size:18px;margin-top:2px}
+.small{font-size:12px;color:var(--muted)}
+.status{min-height:18px;margin:10px 0 0}
+.ok{color:var(--ok);font-weight:750}
+.err{color:var(--dangerText);font-weight:750}
+.info{color:#315da8}
+.empty{padding:12px 0}
+table{width:100%;border-collapse:collapse;font-size:13px}
+td,th{padding:9px 6px;border-bottom:1px solid var(--line);text-align:left;vertical-align:middle}
+th{font-weight:850}
+tbody tr:last-child td{border-bottom:0}
+.historyActions{display:flex;gap:6px;justify-content:flex-end}
+.mini{padding:8px 9px;border-radius:10px;font-size:12px}
+.monthTop{display:flex;gap:9px;align-items:end}
+.monthTop>div{flex:1}
+.notice{background:var(--blueSoft);border-radius:14px;padding:11px 12px;color:#234d91;font-size:12px;line-height:1.45;margin-top:10px}
+.footerNote{font-size:11px;color:#8a8a90;text-align:center;margin-top:18px;line-height:1.4}
+.fieldGrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.fieldGrid>div{min-width:0}
+.quick{display:flex;gap:8px;overflow:auto;padding-bottom:2px;margin-top:10px}.quick button{white-space:nowrap;min-width:auto}
+.summaryGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-top:12px}.summaryBox{background:var(--soft);border-radius:14px;padding:11px}.summaryBox b{display:block;font-size:17px;margin-top:2px}
+@media(max-width:520px){.fieldGrid{grid-template-columns:1fr}.summaryGrid{grid-template-columns:1fr 1fr}.summaryGrid .wide{grid-column:1/-1}}
+
+.placeLibrary{margin-top:12px}.placeRow{display:grid;grid-template-columns:1fr 1fr auto;gap:8px;align-items:end}.placeRow>div{min-width:0}.libraryList{margin-top:10px}.libraryItem{display:flex;justify-content:space-between;gap:8px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line)}.libraryItem:last-child{border-bottom:0}.libraryInfo{min-width:0}.libraryName{font-weight:800}.libraryAddress{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.libraryActions{display:flex;gap:5px;flex:0 0 auto}.libraryActions button{padding:7px 9px;font-size:12px}.stepQuick{display:flex;gap:7px;overflow:auto;margin-top:9px}.stepQuick button{white-space:nowrap;min-width:auto;padding:8px 10px;font-size:12px}.placeSelect{margin-top:8px}.placeSelect select{width:100%;padding:10px;border:1px solid var(--line);border-radius:10px;background:#fff;font:inherit}
+
+.stickySave{position:sticky;bottom:calc(10px + env(safe-area-inset-bottom));z-index:5;margin-top:10px}
+.stickySave button{width:100%;box-shadow:0 5px 20px rgba(0,0,0,.18)}
+a{color:var(--blue)}
+@media(max-width:520px){
+ main{padding:14px 11px calc(75px + env(safe-area-inset-bottom))}
+ h1{font-size:32px}
+ .card{padding:14px;border-radius:18px}
+ .actions button{min-width:0}
+ .stephead{align-items:flex-start}
+ .stats{grid-template-columns:1fr 1fr}
+}
+
+
+.libraryTools{margin-top:12px;display:grid;gap:10px}
+.filterButtons{display:flex;gap:6px;overflow:auto;padding-bottom:2px}
+.miniFilter{white-space:nowrap;border:1px solid var(--line);background:var(--soft);color:var(--text);padding:8px 10px;border-radius:999px;font-size:13px;font-weight:600}
+.miniFilter.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+.libraryCount{margin:8px 0}
+.placeMeta{display:inline-flex;align-items:center;gap:5px;margin-top:5px;font-size:11px;color:var(--muted)}
+.placeTag{padding:3px 7px;border-radius:999px;background:var(--blueSoft);color:var(--blue);font-weight:700}
+.libraryActions{flex-wrap:wrap}
+.libraryItem{gap:10px}
+</style>
+</head>
+<body>
+<main>
+<header>
+ <h1>KM Pro</h1>
+ <div class="sub">Frais kilométriques · trajet complet · retour automatique au dépôt</div>
+</header>
+
+<div class="card">
+ <div class="sectionTitle">Journée</div>
+ <label for="date">Date</label>
+ <input id="date" type="date">
+ <label for="depot">Départ / dépôt</label>
+ <input id="depot" placeholder="Adresse du dépôt">
+ <div class="fieldGrid">
+  <div><label for="vehicle">Véhicule</label><input id="vehicle" placeholder="Ex. Peugeot 308"></div>
+  <div><label for="rate">Taux €/km <span class="small">(facultatif)</span></label><input id="rate" type="number" inputmode="decimal" min="0" step="0.001" placeholder="0,00"></div>
+ </div>
+ <label for="note">Motif / client <span class="small">(facultatif)</span></label>
+ <input id="note" placeholder="Ex. Installation client Dupont">
+ <div class="quick">
+  <button type="button" class="secondary" id="saveDepotBtn">Enregistrer ce dépôt</button>
+  <button type="button" class="secondary" id="clearDraftBtn">Effacer le brouillon</button>
+ </div>
+ <div class="toolbar">
+  <button type="button" class="secondary" id="newDayBtn">Nouvelle journée</button>
+  <button type="button" class="secondary" id="loadDayBtn">Charger la journée</button>
+ </div>
+</div>
+
+<div class="card">
+ <div class="sectionTitle">Étapes du trajet</div>
+ <div class="hint">Ajoute uniquement les lieux réellement visités. Tu peux supprimer, renommer ou déplacer chaque étape.</div>
+ <div id="steps"></div>
+ <div class="actions">
+  <button type="button" id="addStepBtn">+ Ajouter une étape</button>
+  <button type="button" class="secondary" id="calculateBtn">Calculer le trajet complet</button>
+ </div>
+ <div id="status" class="small status"></div>
+ <div class="notice">Les kilomètres sont calculés automatiquement par le moteur d’itinéraire routier. Aucun kilomètre n’est à saisir manuellement. Le retour au dépôt est calculé lui aussi.</div>
+</div>
+
+<div class="card placeLibrary">
+ <div class="sectionTitle">Mes lieux enregistrés</div>
+ <div class="hint">Enregistre une fois le nom et l’adresse d’un fournisseur, d’une installation, d’un devis ou de tout autre lieu. Ensuite tu peux le réutiliser sur n’importe quelle étape.</div>
+ <div class="placeRow">
+  <div><label for="placeName">Nom du lieu</label><input id="placeName" placeholder="Ex. Fournisseur ABC"></div>
+  <div><label for="placeAddress">Adresse</label><input id="placeAddress" placeholder="Adresse complète"></div>
+  <div><label for="placeCategory">Type</label><select id="placeCategory"><option value="Autre">Autre</option><option value="Fournisseur">Fournisseur</option><option value="Installation">Installation</option><option value="Devis">Devis</option></select></div>
+  <button type="button" id="savePlaceBtn">Enregistrer</button>
+ </div>
+ <div class="quick" style="margin-top:10px">
+  <button type="button" class="secondary" id="exportDataBtn">📦 Sauvegarder mes données</button>
+  <div class="small">Transfère tes lieux et tes journées vers la version stable sans les ressaisir.</div>
+ </div>
+ <div class="libraryTools">
+  <input id="placeSearch" type="search" placeholder="🔎 Rechercher un lieu, une adresse…">
+  <div class="filterButtons">
+   <button type="button" class="miniFilter active" data-place-filter="Tous">Tous</button>
+   <button type="button" class="miniFilter" data-place-filter="Fournisseur">Fournisseurs</button>
+   <button type="button" class="miniFilter" data-place-filter="Installation">Installations</button>
+   <button type="button" class="miniFilter" data-place-filter="Devis">Devis</button>
+  </div>
+ </div>
+ <div class="small" id="libraryCount"></div>
+ <div class="libraryList" id="libraryList"></div>
+</div>
+
+<div class="card">
+ <div class="sectionTitle">Retour au dépôt</div>
+ <div class="notice">Le retour est calculé automatiquement entre la dernière étape et le dépôt de départ. Il est inclus dans le total.</div>
+ <div id="returnBox" class="step returnStep">
+  <div class="stephead"><div class="stepbadge returnBadge">↩</div><div class="returnTitle">Dernière étape → dépôt</div></div>
+  <div class="km" id="returnKm">—</div>
+  <div class="routeDetail" id="returnDetail"></div>
+ </div>
+</div>
+
+<div class="card">
+ <div class="totalRow">
+  <div><div class="small">Total de la journée</div><div class="total"><span id="total">0,0</span> <span class="unit">km</span></div></div>
+ </div>
+ <div class="stats">
+  <div class="stat"><div class="small">Aller / étapes</div><b id="outboundTotal">0,0 km</b></div>
+  <div class="stat"><div class="small">Retour dépôt</div><b id="returnTotal">0,0 km</b></div>
+ </div>
+ <div class="actions">
+  <button type="button" id="saveDayBtn">Enregistrer la journée</button>
+ </div>
+</div>
+
+<div class="card">
+ <div class="sectionTitle">Historique</div>
+ <div class="monthTop">
+  <div><label for="month">Mois affiché</label><input id="month" type="month"></div>
+ </div>
+ <div id="monthTotal" class="total" style="margin-top:10px">0,0 km</div>
+ <div class="summaryGrid">
+  <div class="summaryBox"><div class="small">Jours</div><b id="monthDays">0</b></div>
+  <div class="summaryBox"><div class="small">Retours</div><b id="monthReturns">0,0 km</b></div>
+  <div class="summaryBox wide"><div class="small">Remboursement estimé</div><b id="monthAmount">—</b></div>
+ </div>
+ <div id="history" class="empty"></div>
+ <div class="actions">
+  <button type="button" class="secondary" id="exportPagesBtn">📄 Ouvrir le tableau du mois dans Pages</button>
+  <button type="button" class="secondary" id="clearMonthBtn">Effacer le mois</button>
+ </div>
+</div>
+
+<div class="footerNote">Version KM Pro V9 · Les données sont enregistrées sur cet appareil. Le calcul automatique nécessite une connexion Internet.</div>
+</main>
+
+<script>
+const KEY="kmpro-v2"; // conserve l’historique des versions précédentes
+const DRAFT_KEY="kmpro-v5-draft";
+let steps=[];
+let segmentResults=[];
+let returnResult=0;
+let calculationReady=false;
+const $=id=>document.getElementById(id);
+
+function esc(s){return String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));}
+function fmt(n){return (Number(n)||0).toFixed(1).replace(".",",");}
+function today(){return new Date().toISOString().slice(0,10);}
+function monthNow(){return ($("date").value||today()).slice(0,7);}
+function formatDate(s){const p=String(s).split("-");return p.length===3?`${p[2]}/${p[1]}/${p[0]}`:s;}
+
+const PLACES_KEY="kmpro-places-v1";
+function loadPlaces(){try{return JSON.parse(localStorage.getItem(PLACES_KEY)||"[]")}catch{return[]}}
+function savePlaces(data){localStorage.setItem(PLACES_KEY,JSON.stringify(data))}
+function normalizePlaceName(s){return String(s||"").trim().replace(/\s+/g," ")}
+function normalizeCategory(s){return ["Fournisseur","Installation","Devis"].includes(s)?s:"Autre"}
+let placeFilter="Tous";
+
+function defaultSteps(){
+ return [
+  {name:"Fournisseur",address:""},
+  {name:"Installation",address:""},
+  {name:"Maison",address:""},
+  {name:"Devis 1",address:""}
+ ];
+}
+function loadData(){try{return JSON.parse(localStorage.getItem(KEY)||"[]")}catch{return[]}}
+function saveData(data){localStorage.setItem(KEY,JSON.stringify(data))}
+function saveDraft(){
+ const draft={date:$('date').value,depot:$('depot').value,vehicle:$('vehicle').value,rate:$('rate').value,note:$('note').value,steps};
+ localStorage.setItem(DRAFT_KEY,JSON.stringify(draft));
+}
+function loadDraft(){
+ try{
+  const d=JSON.parse(localStorage.getItem(DRAFT_KEY)||"null");
+  if(d&&Array.isArray(d.steps)&&d.steps.length){
+   $('date').value=d.date||today();$('depot').value=d.depot||"";$('vehicle').value=d.vehicle||"";$('rate').value=d.rate||"";$('note').value=d.note||"";steps=d.steps;return true
+  }
+ }catch{}
+ return false
+}
+function clearDraft(){localStorage.removeItem(DRAFT_KEY);}
+function invalidateCalculation(){
+ calculationReady=false;segmentResults=[];returnResult=0;
+ $('total').textContent="0,0";$('outboundTotal').textContent="0,0 km";$('returnTotal').textContent="0,0 km";
+ $('returnKm').textContent="—";$('returnDetail').textContent="";
+}
+function render(){
+ const box=$('steps');box.innerHTML="";
+ steps.forEach((s,i)=>{
+  box.insertAdjacentHTML("beforeend",`<div class="step">
+   <div class="stephead">
+    <div class="stepbadge">${i+1}</div>
+    <div class="stepname"><input aria-label="Nom de l'étape ${i+1}" value="${esc(s.name)}" placeholder="Nom de l'étape" data-name="${i}"></div>
+    ${i>0?`<button type="button" class="moveBtn" data-up="${i}" title="Monter">↑</button>`:""}
+    ${i<steps.length-1?`<button type="button" class="moveBtn" data-down="${i}" title="Descendre">↓</button>`:""}
+    <button type="button" class="deleteBtn" data-delete="${i}">Supprimer</button>
+   </div>
+   <label>Adresse</label>
+   <input aria-label="Adresse de l'étape ${i+1}" value="${esc(s.address)}" placeholder="Saisis l’adresse" data-address="${i}">
+   <div class="stepQuick">
+    <button type="button" class="secondary" data-save-place="${i}">Enregistrer ce lieu</button>
+    <button type="button" class="secondary" data-choose-place="${i}">Choisir un lieu enregistré</button>
+   </div>
+   <div class="placeSelect" id="placeSelect${i}"></div>
+   <div class="km" id="km${i}">${segmentResults[i]?fmt(segmentResults[i])+" km":"—"}</div>
+   <div class="routeDetail" id="detail${i}"></div>
+  </div>`);
+ });
+ box.querySelectorAll("[data-name]").forEach(el=>el.addEventListener("input",e=>{steps[+e.currentTarget.dataset.name].name=e.currentTarget.value;invalidateCalculation();saveDraft();}));
+ box.querySelectorAll("[data-address]").forEach(el=>el.addEventListener("input",e=>{steps[+e.currentTarget.dataset.address].address=e.currentTarget.value;invalidateCalculation();saveDraft();scheduleAutoCalculation();}));
+ box.querySelectorAll("[data-delete]").forEach(el=>el.addEventListener("click",()=>removeStep(+el.dataset.delete)));
+ box.querySelectorAll("[data-up]").forEach(el=>el.addEventListener("click",()=>moveStep(+el.dataset.up,-1)));
+ box.querySelectorAll("[data-down]").forEach(el=>el.addEventListener("click",()=>moveStep(+el.dataset.down,1)));
+ box.querySelectorAll("[data-save-place]").forEach(el=>el.addEventListener("click",()=>saveCurrentStepPlace(+el.dataset.savePlace)));
+ box.querySelectorAll("[data-choose-place]").forEach(el=>el.addEventListener("click",()=>choosePlaceForStep(+el.dataset.choosePlace)));
+}
+function addStep(){
+ let n=1;const used=steps.map(x=>x.name);
+ while(used.includes("Devis "+n))n++;
+ steps.push({name:"Devis "+n,address:""});invalidateCalculation();render();saveDraft();
+ setTimeout(()=>document.querySelector("[data-address='"+(steps.length-1)+"']")?.focus(),50);
+}
+function removeStep(i){
+ if(steps.length<=1){alert("Il faut garder au moins une étape.");return}
+ const name=steps[i].name||("Étape "+(i+1));
+ if(!confirm(`Supprimer « ${name} » ?`))return;
+ steps.splice(i,1);invalidateCalculation();render();saveDraft();
+}
+function moveStep(i,delta){
+ const j=i+delta;if(j<0||j>=steps.length)return;
+ [steps[i],steps[j]]=[steps[j],steps[i]];invalidateCalculation();render();saveDraft();
+}
+
+function upsertPlace(name,address,category="Autre"){
+ name=normalizePlaceName(name);address=normalizePlaceName(address);category=normalizeCategory(category);
+ if(!name||!address){alert("Indique le nom et l’adresse du lieu.");return false}
+ const data=loadPlaces();
+ const key=name.toLowerCase()+"|"+address.toLowerCase();
+ const idx=data.findIndex(x=>(x.name||"").toLowerCase()+"|"+(x.address||"").toLowerCase()===key);
+ const place={...(idx>=0?data[idx]:{}),name,address,category,lastUsed:Date.now()};
+ if(idx>=0)data[idx]=place;else data.push(place);
+ data.sort((a,b)=>(b.lastUsed||0)-(a.lastUsed||0));savePlaces(data);renderLibrary();return true;
+}
+function renderLibrary(){
+ const box=$("libraryList"),all=loadPlaces();
+ const q=($("placeSearch")?.value||"").trim().toLocaleLowerCase("fr");
+ const data=all.filter(p=>(placeFilter==="Tous"||normalizeCategory(p.category)===placeFilter)&&(!q||`${p.name} ${p.address} ${p.category||""}`.toLocaleLowerCase("fr").includes(q)));
+ $("libraryCount").textContent=all.length?`${data.length} lieu${data.length>1?"x":""} affiché${data.length>1?"s":""} sur ${all.length}`:"";
+ if(!data.length){box.innerHTML='<div class="small">Aucun lieu ne correspond à ta recherche.</div>';return}
+ box.innerHTML=data.map((p)=>{
+   const original=all.findIndex(x=>(x.name||"")===p.name&&(x.address||"")===p.address);
+   const cat=normalizeCategory(p.category);
+   return `<div class="libraryItem">
+    <div class="libraryInfo"><div class="libraryName">${esc(p.name)}</div><div class="libraryAddress">${esc(p.address)}</div><div class="placeMeta"><span class="placeTag">${esc(cat)}</span>${p.lastUsed?` · utilisé récemment`:``}</div></div>
+    <div class="libraryActions">
+      <button type="button" class="secondary" data-use-place="${original}">Ajouter</button>
+      <button type="button" class="secondary" data-edit-place="${original}">Modifier</button>
+      <button type="button" class="danger" data-delete-place="${original}">Supprimer</button>
+    </div>
+   </div>`;
+ }).join("");
+ box.querySelectorAll("[data-use-place]").forEach(b=>b.addEventListener("click",()=>usePlace(loadPlaces()[+b.dataset.usePlace])));
+ box.querySelectorAll("[data-edit-place]").forEach(b=>b.addEventListener("click",()=>editPlace(+b.dataset.editPlace)));
+ box.querySelectorAll("[data-delete-place]").forEach(b=>b.addEventListener("click",()=>deletePlace(+b.dataset.deletePlace)));
+}
+function usePlace(place){
+ if(!place)return;
+ place.lastUsed=Date.now();const all=loadPlaces();const idx=all.findIndex(x=>x.name===place.name&&x.address===place.address);if(idx>=0)all[idx]=place;savePlaces(all);
+ const i=steps.length;steps.push({name:place.name,address:place.address});invalidateCalculation();render();saveDraft();renderLibrary();
+ setTimeout(()=>document.querySelector(`[data-address="${i}"]`)?.focus(),50);
+}
+function saveCurrentStepPlace(i){
+ const s=steps[i];if(!s)return;
+ if(upsertPlace(s.name,s.address,"Autre"))alert(`« ${s.name} » est enregistré dans tes lieux.`);
+}
+function choosePlaceForStep(i){
+ const host=$("placeSelect"+i);if(!host)return;
+ const data=loadPlaces();
+ if(!data.length){alert("Aucun lieu enregistré. Enregistre d’abord un lieu.");return}
+ host.innerHTML=`<select data-place-select="${i}"><option value="">Choisir un lieu…</option>${data.map((p,j)=>`<option value="${j}">${esc(p.name)} — ${esc(p.address)}</option>`).join("")}</select>`;
+ const sel=host.querySelector("select");sel.addEventListener("change",()=>{
+   const p=loadPlaces()[+sel.value];if(!p)return;
+   steps[i].name=p.name;steps[i].address=p.address;invalidateCalculation();render();saveDraft();renderLibrary();
+ });
+}
+function editPlace(i){
+ const data=loadPlaces(),p=data[i];if(!p)return;
+ $("placeName").value=p.name;$("placeAddress").value=p.address;$("placeCategory").value=normalizeCategory(p.category);
+ $("savePlaceBtn").textContent="Mettre à jour";
+ $("savePlaceBtn").dataset.editIndex=String(i);
+ document.querySelector(".placeLibrary")?.scrollIntoView({behavior:"smooth",block:"center"});
+}
+function deletePlace(i){
+ const data=loadPlaces(),p=data[i];if(!p)return;
+ if(!confirm(`Supprimer « ${p.name} » de la bibliothèque ?`))return;
+ data.splice(i,1);savePlaces(data);renderLibrary();
+}
+function clearPlaceForm(){
+ $("placeName").value="";$("placeAddress").value="";$("placeCategory").value="Autre";
+ $("savePlaceBtn").textContent="Enregistrer";delete $("savePlaceBtn").dataset.editIndex;
+}
+function routeUrl(a,b){return "https://www.mappy.com/itineraire#"+encodeURIComponent(a)+"%7C"+encodeURIComponent(b);}
+
+async function fetchJson(url,options={},label="Service") {
+ const r=await fetch(url,{...options,cache:"no-store"});
+ if(!r.ok)throw Error(label+" indisponible (HTTP "+r.status+").");
+ return await r.json();
+}
+async function geo(q){
+ const query=encodeURIComponent(q);
+ const providers=[
+  {name:"Géocodage Photon",url:"https://photon.komoot.io/api/?q="+query+"&limit=1&lang=fr",parse:d=>{const f=d?.features?.[0];const c=f?.geometry?.coordinates;return c?[Number(c[0]),Number(c[1])]:null;}},
+  {name:"Géocodage OpenStreetMap",url:"https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&countrycodes=fr&q="+query,parse:d=>d?.[0]?[Number(d[0].lon),Number(d[0].lat)]:null}
+ ];
+ let last=null;
+ for(const p of providers){
+  try{
+   const d=await fetchJson(p.url,{headers:{"Accept-Language":"fr","Accept":"application/json"}},p.name);
+   const point=p.parse(d);
+   if(point&&point.every(Number.isFinite))return point;
+   last=Error("Adresse introuvable : "+q);
+  }catch(e){last=e;}
+ }
+ throw Error("Impossible de localiser « "+q+" ». Vérifie l’adresse et la connexion Internet.");
+}
+// KM Pro V9 : moteur d’itinéraire automatique. Le calcul est effectué par un service routier, pas par Mappy.
+async function route(A,B){
+ const coords=`${A[0]},${A[1]};${B[0]},${B[1]}`;
+ const providers=[
+  "https://router.project-osrm.org/route/v1/driving/"+coords+"?overview=false",
+  "https://routing.openstreetmap.de/routed-car/route/v1/driving/"+coords+"?overview=false"
+ ];
+ let last=null;
+ for(const u of providers){
+  try{
+   const d=await fetchJson(u,{},"Service de calcul d’itinéraire");
+   if(d.code==="Ok"&&d.routes?.[0])return d.routes[0].distance/1000;
+   last=Error("Itinéraire introuvable");
+  }catch(e){last=e;}
+ }
+ throw Error("Le service de calcul des kilomètres est momentanément indisponible. Réessaie dans quelques secondes.");
+}
+async function distance(a,b){
+ const A=await geo(a),B=await geo(b);
+ return await route(A,B);
+}
+async function calculate(){
+ if(calcBusy)return;
+ calcBusy=true;
+ const depot=$("depot").value.trim();
+ if(!depot){$("status").innerHTML='<span class="err">Saisis l’adresse du dépôt.</span>';return}
+ const valid=steps.filter(s=>s.address.trim());
+ if(!valid.length){$("status").innerHTML='<span class="err">Ajoute au moins une étape avec une adresse.</span>';return}
+ if(valid.length!==steps.length){
+  $("status").innerHTML='<span class="err">Toutes les étapes doivent avoir une adresse, ou être supprimées.</span>';return;
+ }
+ invalidateCalculation();$("status").textContent="Calcul du trajet complet…";
+ let from=depot;const results=[];let outbound=0;
+ try{
+  for(let i=0;i<steps.length;i++){
+   const to=steps[i].address.trim();
+   $("km"+i).textContent="Calcul…";
+   const km=await distance(from,to);
+   results.push(km);outbound+=km;
+   $("km"+i).textContent=fmt(km)+" km";
+   $("detail"+i).innerHTML=`${esc(from)} → ${esc(to)} · <a href="${routeUrl(from,to)}" target="_blank" rel="noopener">voir l’itinéraire</a>`;
+   from=to;
+  }
+  const back=await distance(from,depot);
+  segmentResults=results;returnResult=back;calculationReady=true;
+  $("returnKm").textContent=fmt(back)+" km";
+  $("returnDetail").innerHTML=`${esc(from)} → ${esc(depot)} · <a href="${routeUrl(from,depot)}" target="_blank" rel="noopener">voir l’itinéraire</a>`;
+  $("outboundTotal").textContent=fmt(outbound)+" km";
+  $("returnTotal").textContent=fmt(back)+" km";
+  $("total").textContent=fmt(outbound+back);
+  $("status").innerHTML='<span class="ok">Trajet complet calculé.</span> Le retour au dépôt est inclus automatiquement.';
+  saveDraft();
+ }catch(e){
+  $("status").innerHTML='<span class="err">'+esc(e.message)+'</span>';
+ }finally{
+  calcBusy=false;
+ }
+}
+function saveDay(){
+ if(!$("date").value){alert("Choisis une date.");return}
+ if(!calculationReady){alert("Calcule d’abord le trajet complet.");return}
+ const day={date:$("date").value,depot:$("depot").value,vehicle:$("vehicle").value,rate:Number($("rate").value)||0,note:$("note").value,steps:steps.map((s,i)=>({name:s.name,address:s.address,km:segmentResults[i]||0})),returnKm:returnResult,total:segmentResults.reduce((a,b)=>a+b,0)+returnResult};
+ const data=loadData();const idx=data.findIndex(x=>x.date===day.date);
+ if(idx>=0)data[idx]=day;else data.push(day);
+ saveData(data);$("month").value=day.date.slice(0,7);renderHistory();
+ alert("Journée enregistrée.");
+}
+function monthData(){return loadData().filter(x=>x.date&&x.date.startsWith($("month").value)).sort((a,b)=>a.date.localeCompare(b.date));}
+function renderHistory(){
+ const data=monthData(),total=data.reduce((a,b)=>a+(Number(b.total)||0),0),returns=data.reduce((a,b)=>a+(Number(b.returnKm)||0),0);
+ $("monthTotal").textContent=fmt(total)+" km";
+ $("monthDays").textContent=String(data.length);
+ $("monthReturns").textContent=fmt(returns)+" km";
+ const rate=Number(localStorage.getItem("kmpro-rate")||$("rate").value||0);
+ $("monthAmount").textContent=rate>0?(fmt(total*rate)+" €"):"—";
+ if(!data.length){$("history").innerHTML='<div class="small">Aucune journée enregistrée pour ce mois.</div>';return}
+ $("history").innerHTML=`<div style="overflow-x:auto"><table><thead><tr><th>Date</th><th>Total</th><th></th></tr></thead><tbody>${data.map(x=>`<tr><td>${esc(formatDate(x.date))}</td><td><b>${fmt(x.total)} km</b></td><td><div class="historyActions"><button type="button" class="mini secondary" data-edit="${esc(x.date)}">Modifier</button><button type="button" class="mini danger" data-history-delete="${esc(x.date)}">Supprimer</button></div></td></tr>`).join("")}</tbody></table></div>`;
+ $("history").querySelectorAll("[data-edit]").forEach(b=>b.addEventListener("click",()=>loadSavedDay(b.dataset.edit)));
+ $("history").querySelectorAll("[data-history-delete]").forEach(b=>b.addEventListener("click",()=>deleteSavedDay(b.dataset.historyDelete)));
+}
+function loadSavedDay(date){
+ const d=loadData().find(x=>x.date===date);if(!d)return;
+ $("date").value=d.date;$("month").value=d.date.slice(0,7);$("depot").value=d.depot||"";$("vehicle").value=d.vehicle||"";$("rate").value=d.rate||"";$("note").value=d.note||"";
+ steps=(d.steps||[]).map(s=>({name:s.name,address:s.address}));
+ segmentResults=(d.steps||[]).map(s=>Number(s.km)||0);returnResult=Number(d.returnKm)||0;calculationReady=true;
+ render();
+ segmentResults.forEach((km,i)=>{if($("km"+i))$("km"+i).textContent=fmt(km)+" km";});
+ const outbound=segmentResults.reduce((a,b)=>a+b,0);
+ $("outboundTotal").textContent=fmt(outbound)+" km";$("returnTotal").textContent=fmt(returnResult)+" km";$("total").textContent=fmt(outbound+returnResult);
+ $("returnKm").textContent=fmt(returnResult)+" km";
+ $("status").innerHTML='<span class="ok">Journée chargée.</span> Tu peux la modifier puis la réenregistrer.';
+ saveDraft();window.scrollTo({top:0,behavior:"smooth"});
+}
+function deleteSavedDay(date){
+ if(!confirm(`Supprimer la journée du ${formatDate(date)} ?`))return;
+ const data=loadData().filter(x=>x.date!==date);saveData(data);renderHistory();
+}
+function newDay(){
+ if(!confirm("Commencer une nouvelle journée ? Les journées déjà enregistrées ne seront pas supprimées."))return;
+$("date").value=today();$("month").value=today().slice(0,7);steps=defaultSteps();segmentResults=[];returnResult=0;calculationReady=false;
+ $("depot").value=localStorage.getItem("kmpro-depot")||"21 rue Romain Rolland, 69200 Vénissieux";$("vehicle").value=localStorage.getItem("kmpro-vehicle")||"";$("rate").value=localStorage.getItem("kmpro-rate")||"";$("note").value="";
+ clearDraft();render();invalidateCalculation();$("status").textContent="Nouvelle journée prête.";saveDraft();
+ window.scrollTo({top:0,behavior:"smooth"});
+}
+function makeMonthCsv(){
+ const data=monthData();if(!data.length)return null;
+ const q=v=>`"${String(v??"").replace(/"/g,'""')}"`;
+ const lines=[["Date","Dépôt","Véhicule","Motif / client","Détail du trajet","Retour au dépôt (km)","Total km","Estimation (€)"].map(q).join(";")];
+ data.forEach(d=>{
+  const detail=(d.steps||[]).map(s=>`${s.name}: ${s.address} (${fmt(s.km)} km)`).join(" | ");
+  const r=Number(d.rate)||0; lines.push([d.date,d.depot,d.vehicle||"",d.note||"",detail,fmt(d.returnKm),fmt(d.total),r>0?fmt(d.total*r):""].map(q).join(";"));
+ });
+ return "\uFEFF"+lines.join("\r\n");
+}
+
+function exportKmProData(){
+ const payload={version:1,createdAt:new Date().toISOString(),places:loadPlaces(),days:loadData(),draft:localStorage.getItem(DRAFT_KEY),depot:localStorage.getItem("kmpro-depot")||"",vehicle:localStorage.getItem("kmpro-vehicle")||"",rate:localStorage.getItem("kmpro-rate")||""};
+ const blob=new Blob([JSON.stringify(payload,null,2)],{type:"application/json"});
+ const file=new File([blob],"km-pro-sauvegarde.json",{type:"application/json"});
+ if(navigator.share&&navigator.canShare&&navigator.canShare({files:[file]})){navigator.share({title:"Sauvegarde KM Pro",files:[file]}).catch(()=>{});return}
+ const url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download=file.name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
+}
+
+// Minimal ZIP writer (STORE) used to create a valid .docx directly in Safari.
+function zipStore(files){
+ const enc=new TextEncoder();
+ const u8=v=>v instanceof Uint8Array?v:enc.encode(String(v));
+ const crcTable=(()=>{const t=new Uint32Array(256);for(let n=0;n<256;n++){let c=n;for(let k=0;k<8;k++)c=(c&1)?(0xEDB88320^(c>>>1)):(c>>>1);t[n]=c>>>0;}return t;})();
+ const crc32=a=>{let c=0xFFFFFFFF;for(const b of a)c=crcTable[(c^b)&255]^(c>>>8);return (c^0xFFFFFFFF)>>>0;};
+ const u16=n=>new Uint8Array([n&255,(n>>>8)&255]);
+ const u32=n=>new Uint8Array([n&255,(n>>>8)&255,(n>>>16)&255,(n>>>24)&255]);
+ const parts=[];const central=[];let offset=0;
+ const push=a=>{parts.push(a);offset+=a.length;};
+ files.forEach(f=>{
+  const name=u8(f.name),data=u8(f.data),crc=crc32(data);
+  const local=new Uint8Array(30+name.length+data.length);let o=0;
+  local.set(u32(0x04034b50),o);o+=4;local.set(u16(20),o);o+=2;local.set(u16(0),o);o+=2;local.set(u16(0),o);o+=2;
+  local.set(u16(0),o);o+=2;local.set(u16(0),o);o+=2;local.set(u32(crc),o);o+=4;local.set(u32(data.length),o);o+=4;local.set(u32(data.length),o);o+=4;local.set(u16(name.length),o);o+=2;local.set(u16(0),o);o+=2;local.set(name,o);o+=name.length;local.set(data,o);
+  push(local);
+  const c=new Uint8Array(46+name.length);o=0;c.set(u32(0x02014b50),o);o+=4;c.set(u16(20),o);o+=2;c.set(u16(20),o);o+=2;c.set(u16(0),o);o+=2;c.set(u16(0),o);o+=2;c.set(u16(0),o);o+=2;c.set(u16(0),o);o+=2;c.set(u32(crc),o);o+=4;c.set(u32(data.length),o);o+=4;c.set(u32(data.length),o);o+=4;c.set(u16(name.length),o);o+=2;c.set(u16(0),o);o+=2;c.set(u16(0),o);o+=2;c.set(u16(0),o);o+=2;c.set(u16(0),o);o+=2;c.set(u32(0),o);o+=4;c.set(u32(offset-local.length),o);o+=4;c.set(name,o);central.push(c);
+ });
+ const centralStart=offset;let centralSize=0;for(const c of central){parts.push(c);centralSize+=c.length;}
+ const end=new Uint8Array(22);let o=0;end.set(u32(0x06054b50),o);o+=4;end.set(u16(0),o);o+=2;end.set(u16(0),o);o+=2;end.set(u16(files.length),o);o+=2;end.set(u16(files.length),o);o+=2;end.set(u32(centralSize),o);o+=4;end.set(u32(centralStart),o);o+=4;end.set(u16(0),o);
+ parts.push(end);
+ const out=new Uint8Array(parts.reduce((n,a)=>n+a.length,0));let pos=0;for(const a of parts){out.set(a,pos);pos+=a.length;}return out;
+}
+
+function makeDocxTable(data){
+ const rows=[];
+ rows.push(['Jours','Lieux de déplacements','Nombres de kilomètres']);
+ data.forEach(d=>{
+  const places=(d.steps||[]).map(s=>{
+    const name=(s.name||'').trim();
+    const addr=(s.address||'').trim();
+    return name && addr ? `${name} : ${addr}` : (addr||name);
+  });
+  if(Number(d.returnKm||0)>0) places.push(`Retour au dépôt : ${fmt(d.returnKm)} km`);
+  const detail=places.join('\n');
+  rows.push([formatDate(d.date),detail,`${fmt(d.total)} km`]);
+ });
+ const widths=[1700,6900,1900];
+ const cell=(text,bold,width,header=false)=>{
+   const lines=String(text??'').split('\n');
+   return `<w:tc><w:tcPr><w:tcW w:w="${width}" w:type="dxa"/><w:vAlign w:val="top"/></w:tcPr>`+
+    lines.map(line=>`<w:p><w:pPr><w:spacing w:after="0"/></w:pPr><w:r>${bold?'<w:rPr><w:b/></w:rPr>':''}<w:t xml:space="preserve">${xmlEscape(line)}</w:t></w:r></w:p>`).join('')+`</w:tc>`;
+ };
+ return `<w:tbl><w:tblPr><w:tblW w:w="10500" w:type="dxa"/><w:tblLayout w:type="fixed"/><w:tblBorders><w:top w:val="single" w:sz="6"/><w:left w:val="single" w:sz="6"/><w:bottom w:val="single" w:sz="6"/><w:right w:val="single" w:sz="6"/><w:insideH w:val="single" w:sz="4"/><w:insideV w:val="single" w:sz="4"/></w:tblBorders></w:tblPr>`+
+ rows.map((row,ri)=>`<w:tr>${row.map((c,i)=>cell(c,ri===0,widths[i],ri===0)).join('')}</w:tr>`).join('')+`</w:tbl>`;
+}
+
+async function exportPages(){
+ const data=monthData();
+ if(!data.length){alert("Aucune journée enregistrée pour le mois sélectionné.");return}
+ const month=$('month').value;
+ const [yy,mm]=month.split('-');
+ const monthName=new Date(Number(yy),Number(mm)-1,1).toLocaleDateString('fr-FR',{month:'long'});
+ const total=data.reduce((sum,d)=>sum+Number(d.total||0),0);
+ const rate=Number(localStorage.getItem("kmpro-rate")||data.find(d=>Number(d.rate)>0)?.rate||0);
+ const title=`FRAIS KILOMÉTRIQUES MOIS DE ${monthName.toUpperCase()} ${yy}`;
+ const vehicle=(data.find(d=>d.vehicle)?.vehicle||localStorage.getItem('kmpro-vehicle')||'').trim();
+ const documentXml=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:body>
+<w:p><w:pPr><w:jc w:val="center"/><w:spacing w:after="220"/></w:pPr><w:r><w:rPr><w:b/><w:sz w:val="30"/></w:rPr><w:t>${xmlEscape(title)}</w:t></w:r></w:p>
+${makeDocxTable(data)}
+<w:p><w:pPr><w:spacing w:before="260"/></w:pPr><w:r><w:rPr><w:b/></w:rPr><w:t>Total du mois : ${xmlEscape(fmt(total))} km</w:t></w:r></w:p>
+${vehicle?`<w:p><w:r><w:t>Véhicule : ${xmlEscape(vehicle)}</w:t></w:r></w:p>`:''}
+${rate>0?`<w:p><w:r><w:t>Remboursement estimé : ${xmlEscape(fmt(total*rate))} €</w:t></w:r></w:p>`:''}
+<w:sectPr><w:pgSz w:w="11906" w:h="16838"/><w:pgMar w:top="700" w:right="700" w:bottom="700" w:left="700"/></w:sectPr>
+</w:body></w:document>`;
+ const contentTypes=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/><Override PartName="/word/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.styles+xml"/><Override PartName="/word/settings.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.settings+xml"/><Override PartName="/docProps/core.xml" ContentType="application/vnd.openxmlformats-package.core-properties+xml"/><Override PartName="/docProps/app.xml" ContentType="application/vnd.openxmlformats-officedocument.extended-properties+xml"/></Types>`;
+ const rels=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/><Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/extended-properties" Target="docProps/app.xml"/><Relationship Id="rId3" Type="http://schemas.openxmlformats.org/package/2006/relationships/metadata/core-properties" Target="docProps/core.xml"/></Relationships>`;
+ const wordRels=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/settings" Target="settings.xml"/><Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/></Relationships>`;
+ const styles=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:styles xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:docDefaults><w:rPrDefault><w:rPr><w:rFonts w:ascii="Arial" w:hAnsi="Arial"/><w:sz w:val="22"/></w:rPr></w:rPrDefault><w:pPrDefault><w:pPr><w:spacing w:after="80"/></w:pPr></w:pPrDefault></w:docDefaults></w:styles>`;
+ const settings=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:settings xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:zoom w:percent="100"/></w:settings>`;
+ const app=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Properties xmlns="http://schemas.openxmlformats.org/officeDocument/2006/extended-properties"><Application>KM Pro</Application></Properties>`;
+ const core=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><cp:coreProperties xmlns:cp="http://schemas.openxmlformats.org/package/2006/metadata/core-properties" xmlns:dc="http://purl.org/dc/elements/1.1/"><dc:title>Tableau mensuel des frais kilométriques</dc:title><dc:creator>KM Pro</dc:creator></cp:coreProperties>`;
+ const bytes=zipStore([
+  {name:'[Content_Types].xml',data:contentTypes},
+  {name:'_rels/.rels',data:rels},
+  {name:'word/document.xml',data:documentXml},
+  {name:'word/_rels/document.xml.rels',data:wordRels},
+  {name:'word/styles.xml',data:styles},
+  {name:'word/settings.xml',data:settings},
+  {name:'docProps/app.xml',data:app},
+  {name:'docProps/core.xml',data:core},
+ ]);
+ const file=new File([bytes],`tableau-mensuel-frais-kilometriques-${month}.docx`,{type:'application/vnd.openxmlformats-officedocument.wordprocessingml.document'});
+ if(navigator.share&&navigator.canShare&&navigator.canShare({files:[file]})){
+  try{await navigator.share({title:"Tableau mensuel des frais kilométriques",files:[file]});}catch{}return;
+ }
+ const blob=new Blob([bytes],{type:file.type}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=file.name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
+}
+
+function clearMonth(){
+ const m=$("month").value;if(!m)return;
+ const data=loadData().filter(x=>!x.date?.startsWith(m));
+ if(!confirm(`Supprimer toutes les journées de ${m} ? Cette action est irréversible.`))return;
+ saveData(data);renderHistory();
+}
+
+let autoCalcTimer=null;
+let calcBusy=false;
+function scheduleAutoCalculation(){
+ clearTimeout(autoCalcTimer);
+ const depot=$("depot").value.trim();
+ if(!depot || steps.some(s=>!s.address.trim())) return;
+ autoCalcTimer=setTimeout(()=>{ if(!calcBusy) calculate(); },900);
+}
+
+$("date").value=today();$("month").value=today().slice(0,7);
+// Récupération automatique des données existantes : dépôt depuis le stockage actuel,
+// puis depuis le brouillon ou la dernière journée enregistrée, sans rien ressaisir.
+function recoverSavedDepot(){
+  const direct=(localStorage.getItem("kmpro-depot")||"").trim();
+  if(direct)return direct;
+  try{
+    const d=JSON.parse(localStorage.getItem(DRAFT_KEY)||"null");
+    if(d?.depot?.trim()) return d.depot.trim();
+  }catch{}
+  try{
+    const days=loadData().filter(x=>x?.depot?.trim()).sort((a,b)=>String(b.date||"").localeCompare(String(a.date||"")));
+    if(days[0]?.depot?.trim()) return days[0].depot.trim();
+  }catch{}
+  return "21 rue Romain Rolland, 69200 Vénissieux";
+}
+const savedDepot=recoverSavedDepot();
+$("depot").value=savedDepot;
+localStorage.setItem("kmpro-depot",savedDepot);
+if(!loadDraft())steps=defaultSteps();
+$("depot").addEventListener("input",()=>{localStorage.setItem("kmpro-depot",$("depot").value);invalidateCalculation();saveDraft();scheduleAutoCalculation();});
+["vehicle","rate","note"].forEach(id=>$(id).addEventListener("input",()=>{if(id==="vehicle")localStorage.setItem("kmpro-vehicle",$(id).value);if(id==="rate")localStorage.setItem("kmpro-rate",$(id).value);invalidateCalculation();saveDraft();renderHistory();}));
+$("saveDepotBtn").addEventListener("click",()=>{localStorage.setItem("kmpro-depot",$("depot").value.trim()||"21 rue Romain Rolland, 69200 Vénissieux");alert("Dépôt enregistré.");});
+$("clearDraftBtn").addEventListener("click",()=>{if(confirm("Effacer le brouillon en cours ?")){clearDraft();newDay();}});
+$("date").addEventListener("change",()=>{$("month").value=monthNow();renderHistory();saveDraft();});
+$("month").addEventListener("change",renderHistory);
+$("newDayBtn").addEventListener("click",newDay);
+$("loadDayBtn").addEventListener("click",()=>{const d=loadData().find(x=>x.date===$("date").value);if(d)loadSavedDay(d.date);else alert("Aucune journée enregistrée à cette date.");});
+$("addStepBtn").addEventListener("click",addStep);
+$("calculateBtn").addEventListener("click",calculate);
+$("saveDayBtn").addEventListener("click",saveDay);
+$("exportPagesBtn").addEventListener("click",exportPages);
+$("clearMonthBtn").addEventListener("click",clearMonth);
+$("exportDataBtn").addEventListener("click",exportKmProData);
+$("savePlaceBtn").addEventListener("click",()=>{
+ const btn=$("savePlaceBtn"),i=btn.dataset.editIndex;
+ const name=$("placeName").value,address=$("placeAddress").value,category=$("placeCategory").value;
+ if(i!==undefined){
+   const data=loadPlaces(),old=data[+i];
+   if(!old){clearPlaceForm();return}
+   if(!name.trim()||!address.trim()){alert("Indique le nom et l’adresse du lieu.");return}
+   const duplicate=data.findIndex((x,j)=>j!==+i&&x.name.toLowerCase()===name.trim().toLowerCase()&&x.address.toLowerCase()===address.trim().toLowerCase());
+   if(duplicate>=0){alert("Ce lieu existe déjà.");return}
+   data[+i]={...old,name:name.trim(),address:address.trim(),category:normalizeCategory(category),lastUsed:Date.now()};
+   savePlaces(data);clearPlaceForm();renderLibrary();alert("Lieu mis à jour.");
+ }else if(upsertPlace(name,address,category)){clearPlaceForm();alert("Lieu enregistré.");}
+});
+$("placeSearch").addEventListener("input",renderLibrary);
+document.querySelectorAll("[data-place-filter]").forEach(b=>b.addEventListener("click",()=>{
+ placeFilter=b.dataset.placeFilter;
+ document.querySelectorAll("[data-place-filter]").forEach(x=>x.classList.toggle("active",x===b));
+ renderLibrary();
+}));
+render();renderHistory();renderLibrary();
+</script>
+</body>
+</html>
